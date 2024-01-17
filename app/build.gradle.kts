@@ -66,4 +66,8 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    // tab layout
+    implementation("com.google.accompanist:accompanist-pager:0.23.0")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.23.0")
 }

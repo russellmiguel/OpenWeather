@@ -20,27 +20,22 @@ import androidx.compose.ui.unit.sp
 import com.robertrussell.miguel.openweather.ui.theme.OpenWeatherTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            //SignInPage()
-            HomePage()
-        }
-    }
-}
+            OpenWeatherMainPage()
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+            //SignInPage()
+            //HomePage()
+        }
+
+
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    OpenWeatherTheme {
-        Greeting("Android")
-    }
+fun DefaultPreview() {
+    OpenWeatherMainPage()
 }

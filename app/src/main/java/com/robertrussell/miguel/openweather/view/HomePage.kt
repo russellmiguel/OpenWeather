@@ -1,6 +1,7 @@
 package com.robertrussell.miguel.openweather.view
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,8 @@ import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import com.robertrussell.miguel.openweather.model.TabPages
+import com.robertrussell.miguel.openweather.view.navigation.Navigation
+import com.robertrussell.miguel.openweather.view.navigation.Pages
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
@@ -31,6 +34,10 @@ fun HomePage() {
             tabList = tabItems,
             pagerState = pagerState
         )
+    }
+
+    BackHandler {
+        Navigation.navigateTo(Pages.SignInScreen)
     }
 }
 

@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -25,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -33,9 +29,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.robertrussell.miguel.openweather.R
+import com.robertrussell.miguel.openweather.model.SignInUIEvents
+import com.robertrussell.miguel.openweather.utils.Constants
+import com.robertrussell.miguel.openweather.viewmodel.SignViewModel
 
 @Composable
 fun HeaderTextView(
@@ -82,7 +82,7 @@ fun Header2TextView(
 }
 
 @Composable
-fun BasicEditText(labelValue: String) {
+fun BasicEditText(formType: String, labelValue: String, viewModel: SignViewModel) {
     val textValue = remember { mutableStateOf("") }
 
     TextField(
@@ -105,11 +105,17 @@ fun BasicEditText(labelValue: String) {
         ),
         onValueChange = {
             textValue.value = it
+            if (formType == Constants.SIGNIN) {
+                viewModel.onSignInEvent(SignInUIEvents.UsernameChanged(it))
+            } else {
+                //TODO: Change to SignUp event
+                viewModel.onSignInEvent(SignInUIEvents.UsernameChanged(it))
+            }
         })
 }
 
 @Composable
-fun PasswordEditText(labelValue: String) {
+fun PasswordEditText(formType: String, labelValue: String, viewModel: SignViewModel) {
     val localFocusManager = LocalFocusManager.current
 
     val passwordValue = remember {
@@ -144,6 +150,12 @@ fun PasswordEditText(labelValue: String) {
         },
         onValueChange = {
             passwordValue.value = it
+            if (formType == Constants.SIGNIN) {
+                viewModel.onSignInEvent(SignInUIEvents.PasswordChanged(it))
+            } else {
+                //TODO: Change to SignUp event
+                viewModel.onSignInEvent(SignInUIEvents.PasswordChanged(it))
+            }
         },
         trailingIcon = {
 
@@ -172,7 +184,7 @@ fun PasswordEditText(labelValue: String) {
 fun BasicButton(labelValue: String, onButtonClicked: () -> Unit) {
     Button(
         onClick = {
-            /*TODO*/
+            onButtonClicked
         }, shape = RoundedCornerShape(16.dp), modifier = Modifier
             .wrapContentWidth()
             .wrapContentHeight(), colors = ButtonDefaults.buttonColors(

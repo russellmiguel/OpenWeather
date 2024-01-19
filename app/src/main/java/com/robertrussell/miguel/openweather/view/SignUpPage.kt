@@ -1,5 +1,7 @@
 package com.robertrussell.miguel.openweather.view
 
+import android.nfc.Tag
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,8 +12,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,11 +26,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.robertrussell.miguel.openweather.R
+import com.robertrussell.miguel.openweather.model.SignUpUIEvent
 import com.robertrussell.miguel.openweather.utils.Constants
 import com.robertrussell.miguel.openweather.view.navigation.Navigation
 import com.robertrussell.miguel.openweather.view.navigation.Pages
@@ -31,7 +42,15 @@ import com.robertrussell.miguel.openweather.viewmodel.SignViewModel
 
 
 @Composable
-fun SignUpPage(viewModel: SignViewModel = viewModel()) {
+fun SignUpPage(viewModel: SignViewModel) {
+
+    val context = LocalContext.current
+
+    var signUpOnClick = {
+        //Toast.makeText(context, "signUpOnClick", Toast.LENGTH_SHORT).show()
+        viewModel.onSignUpEvent(SignUpUIEvent.SignUpButtonClicked)
+    }
+
     Surface(
         modifier = Modifier
             .fillMaxHeight(1f)
@@ -70,19 +89,13 @@ fun SignUpPage(viewModel: SignViewModel = viewModel()) {
 
 
                 Spacer(modifier = Modifier.height(16.dp))
-                BasicButton(labelValue = "Sign Up") { }
+                BasicButton(labelValue = "Sign Up", signUpOnClick)
             }
         }
     }
 
     BackHandler {
+        viewModel.clearSignUpValues()
         Navigation.navigateTo(Pages.SignInScreen)
     }
-}
-
-
-@Preview
-@Composable
-fun SignUpScreenPreview() {
-    SignUpPage()
 }

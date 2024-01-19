@@ -39,7 +39,7 @@ import com.robertrussell.miguel.openweather.viewmodel.SignViewModel
 
 
 @Composable
-fun SignInPage(viewModel: SignViewModel = viewModel()) {
+fun SignInPage(viewModel: SignViewModel) {
 
     val context = LocalContext.current
 
@@ -79,8 +79,6 @@ fun SignInPage(viewModel: SignViewModel = viewModel()) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
-                        //TODO: For test
-                        // Navigation.navigateTo(Pages.HomeScreen)
                         viewModel.onSignInEvent(SignInUIEvents.SignInButtonClicked)
                     }, shape = RoundedCornerShape(16.dp), modifier = Modifier
                         .wrapContentWidth()
@@ -124,11 +122,4 @@ fun SignInPage(viewModel: SignViewModel = viewModel()) {
             }
         }
     }
-}
-
-
-@Preview
-@Composable
-fun SignInScreenPreview() {
-    SignInPage()
 }

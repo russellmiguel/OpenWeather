@@ -6,15 +6,16 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.robertrussell.miguel.openweather.model.entity.User
 
+
 @Dao
 interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertUser(user: User)
+    suspend fun insertUser(user: User): Long
 
     @Query("SELECT * FROM users")
-    suspend fun getAllUsers() : List<User>
+    fun getAllUsers(): List<User>
 
     @Query("SELECT * FROM users WHERE username LIKE :userName AND password LIKE :password")
-    suspend fun getUser(userName: String, password: String): User
+    fun getUser(userName: String, password: String): User
 }

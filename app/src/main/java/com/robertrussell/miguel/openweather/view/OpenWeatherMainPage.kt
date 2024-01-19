@@ -8,11 +8,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.robertrussell.miguel.openweather.view.navigation.Navigation
 import com.robertrussell.miguel.openweather.view.navigation.Pages
+import com.robertrussell.miguel.openweather.viewmodel.SignViewModel
 
 @Composable
-fun OpenWeatherMainPage() {
-    //TODO: Launch repo/viewmodels if needed
-
+fun OpenWeatherMainPage(viewModel: SignViewModel) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.White
@@ -23,7 +22,7 @@ fun OpenWeatherMainPage() {
         Crossfade(targetState = Navigation.currentPage, label = "") { currentPage ->
             when (currentPage.value) {
                 is Pages.SignUpScreen -> {
-                    SignUpPage()
+                    SignUpPage(viewModel)
                 }
 
                 is Pages.HomeScreen -> {
@@ -31,7 +30,7 @@ fun OpenWeatherMainPage() {
                 }
 
                 else -> {
-                    SignInPage()
+                    SignInPage(viewModel)
                 }
             }
 

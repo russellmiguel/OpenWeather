@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.robertrussell.miguel.openweather.R
 import com.robertrussell.miguel.openweather.model.SignInUIEvents
+import com.robertrussell.miguel.openweather.model.SignUpUIEvent
 import com.robertrussell.miguel.openweather.utils.Constants
 import com.robertrussell.miguel.openweather.viewmodel.SignViewModel
 
@@ -108,8 +109,11 @@ fun BasicEditText(formType: String, labelValue: String, viewModel: SignViewModel
             if (formType == Constants.SIGNIN) {
                 viewModel.onSignInEvent(SignInUIEvents.UsernameChanged(it))
             } else {
-                //TODO: Change to SignUp event
-                viewModel.onSignInEvent(SignInUIEvents.UsernameChanged(it))
+                when (labelValue) {
+                    "Name" -> viewModel.onSignUpEvent(SignUpUIEvent.NameChanged(it))
+                    "Email" -> viewModel.onSignUpEvent(SignUpUIEvent.EmailChanged(it))
+                    "Username" -> viewModel.onSignUpEvent(SignUpUIEvent.UsernameChanged(it))
+                }
             }
         })
 }
@@ -153,8 +157,7 @@ fun PasswordEditText(formType: String, labelValue: String, viewModel: SignViewMo
             if (formType == Constants.SIGNIN) {
                 viewModel.onSignInEvent(SignInUIEvents.PasswordChanged(it))
             } else {
-                //TODO: Change to SignUp event
-                viewModel.onSignInEvent(SignInUIEvents.PasswordChanged(it))
+                viewModel.onSignUpEvent(SignUpUIEvent.PasswordChanged(it))
             }
         },
         trailingIcon = {
@@ -183,13 +186,12 @@ fun PasswordEditText(formType: String, labelValue: String, viewModel: SignViewMo
 @Composable
 fun BasicButton(labelValue: String, onButtonClicked: () -> Unit) {
     Button(
-        onClick = {
-            onButtonClicked
-        }, shape = RoundedCornerShape(16.dp), modifier = Modifier
+        onClick = onButtonClicked,
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
             .wrapContentWidth()
-            .wrapContentHeight(), colors = ButtonDefaults.buttonColors(
-            Color(0xFF333333)
-        )
+            .wrapContentHeight(),
+        colors = ButtonDefaults.buttonColors(Color(0xFF333333))
     ) {
         Text(
             text = labelValue,

@@ -1,6 +1,6 @@
 package com.robertrussell.miguel.openweather.view
 
-import android.util.Log
+import android.location.Location
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
@@ -11,6 +11,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -19,11 +20,12 @@ import com.google.accompanist.pager.rememberPagerState
 import com.robertrussell.miguel.openweather.model.TabPages
 import com.robertrussell.miguel.openweather.view.navigation.Navigation
 import com.robertrussell.miguel.openweather.view.navigation.Pages
+import com.robertrussell.miguel.openweather.viewmodel.OpenWeatherViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun HomePage() {
+fun HomePage(owViewModel: OpenWeatherViewModel) {
 
     val tabItems = listOf(TabPages.CurrentInfo, TabPages.HistoryInfo)
     val pagerState = rememberPagerState(initialPage = 0)
@@ -31,8 +33,9 @@ fun HomePage() {
     Column(modifier = Modifier.fillMaxSize()) {
         Tabs(tabList = tabItems, pagerState = pagerState)
         TabPages(
+            owViewModel = owViewModel,
             tabList = tabItems,
-            pagerState = pagerState
+            pagerState = pagerState,
         )
     }
 
@@ -72,7 +75,11 @@ fun Tabs(tabList: List<TabPages>, pagerState: PagerState) {
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun TabPages(tabList: List<TabPages>, pagerState: PagerState) {
+fun TabPages(
+    owViewModel: OpenWeatherViewModel,
+    tabList: List<TabPages>,
+    pagerState: PagerState,
+) {
     HorizontalPager(
         count = tabList.size,
         state = pagerState,
@@ -81,9 +88,8 @@ fun TabPages(tabList: List<TabPages>, pagerState: PagerState) {
          * Temporary solution!
          * Composable item not working as intended, will find solution
          */
-        // tabList[page].screens
         if (tabList[page].title == "Current Information") {
-            CurrentInfoPage()
+            CurrentInfoPage(owViewModel)
         } else {
             HistoryInfoPage()
         }
@@ -93,5 +99,6 @@ fun TabPages(tabList: List<TabPages>, pagerState: PagerState) {
 @Preview
 @Composable
 fun HomePagePreview() {
-    HomePage()
+    val owViewModel: OpenWeatherViewModel = viewModel()
+    HomePage(owViewModel)
 }

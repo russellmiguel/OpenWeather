@@ -70,18 +70,23 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    // tab layout
+    // Tab layout
     implementation("com.google.accompanist:accompanist-pager:0.23.0")
     implementation("com.google.accompanist:accompanist-pager-indicators:0.23.0")
 
+    // Room database
     val room_version = "2.6.1"
-
     implementation("androidx.room:room-runtime:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
-
-    // To use Kotlin annotation processing tool (kapt)
     ksp("androidx.room:room-compiler:$room_version")
-
-    // optional - Kotlin Extensions and Coroutines support for Room
     implementation("androidx.room:room-ktx:$room_version")
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.3.0")
+    implementation("com.squareup.retrofit2:adapter-rxjava2:2.3.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:3.9.1")
+
+    // GPS
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 }

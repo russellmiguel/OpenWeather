@@ -114,11 +114,6 @@ fun SignInPage(viewModel: SignViewModel) {
                         fontWeight = FontWeight.ExtraBold
                     )
                 }
-
-                // Unix TMC conversion
-//                val unixTimestamp: Long = 1427607706
-//                val javaTimestamp = unixTimestamp * 1000L
-//                val date = Date(javaTimestamp)
             }
         }
     }

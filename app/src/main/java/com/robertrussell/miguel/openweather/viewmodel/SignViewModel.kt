@@ -1,18 +1,23 @@
 package com.robertrussell.miguel.openweather.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.robertrussell.miguel.openweather.model.SignInUIEvents
 import com.robertrussell.miguel.openweather.model.SignInValues
 import com.robertrussell.miguel.openweather.model.SignUpUIEvent
 import com.robertrussell.miguel.openweather.model.SignUpValues
+import com.robertrussell.miguel.openweather.model.api.Response
 import com.robertrussell.miguel.openweather.model.dao.UserDao
 import com.robertrussell.miguel.openweather.model.entity.User
 import com.robertrussell.miguel.openweather.utils.DataChecker
 import com.robertrussell.miguel.openweather.view.navigation.Navigation
 import com.robertrussell.miguel.openweather.view.navigation.Pages
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.lang.StringBuilder
 
@@ -27,6 +32,12 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
     private var signUpUIValue = SignUpValues()
     private var signUpInProgress = mutableStateOf(false)
     private var signUpErrorMessage = StringBuilder()
+
+    /**
+     * Observable sign up values.
+     */
+    private var _newUserData = MutableLiveData<SignUpValues>(SignUpValues(""))
+    var newUserData: LiveData<SignUpValues> = _newUserData
 
     /**
      * Add user to local db.
@@ -103,21 +114,32 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
                 val valResult = validateSignUpDetails()
                 Log.d(TAG, valResult.toString())
 
+                val newUser = User(
+                    name = signUpUIValue.name,
+                    email = signUpUIValue.email,
+                    username = signUpUIValue.userName,
+                    password = signUpUIValue.password
+                )
+
                 if (valResult) {
-                    val newUser = User(
-                        name = signUpUIValue.name,
-                        email = signUpUIValue.email,
-                        username = signUpUIValue.userName,
-                        password = signUpUIValue.password
-                    )
                     insertUser(newUser).also {
                         Thread.sleep(1000L)
                         val newAddedUser = getUser(signUpUIValue.userName, signUpUIValue.password)
+                        val _newUser = SignUpValues(
+                            name = newAddedUser.name,
+                            email = newAddedUser.email,
+                            userName = newAddedUser.username,
+                            password = newAddedUser.password,
+                        )
+                        _newUserData.postValue(_newUser)
+
                         Log.d(TAG, newAddedUser.toString())
                         clearSignUpValues()
                     }
                 } else {
-                    Log.d(TAG, signUpErrorMessage.toString())
+                    signUpUIValue.errorMessage = signUpErrorMessage.toString()
+                    _newUserData.value = signUpUIValue
+                    Log.d("TEST-Observer - $TAG", signUpErrorMessage.toString())
                 }
             }
         }
@@ -129,7 +151,7 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
         }
 
         if (!DataChecker.validateName(signUpUIValue.name).status) {
-            signUpErrorMessage.append("Name is too short. \n")
+            signUpErrorMessage.append("Name is empty or too short. \n")
             signUpUIValue.nameError = true
         } else {
             signUpUIValue.nameError = false
@@ -143,7 +165,7 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
         }
 
         if (!DataChecker.validateUsername(signUpUIValue.userName).status) {
-            signUpErrorMessage.append("Username too short, should be at least 6 characters. \n")
+            signUpErrorMessage.append("Username is empty or too short, should be at least 6 characters. \n")
             signUpUIValue.userNameError = true
         } else {
             signUpUIValue.userNameError = false
@@ -155,7 +177,6 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
         } else {
             signUpUIValue.passwordError = false
         }
-
 
         return (!signUpUIValue.nameError && !signUpUIValue.emailError && !signUpUIValue.userNameError && !signUpUIValue.passwordError)
     }

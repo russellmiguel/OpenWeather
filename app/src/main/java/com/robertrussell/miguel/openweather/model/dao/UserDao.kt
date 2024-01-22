@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.robertrussell.miguel.openweather.model.entity.User
 
-
 @Dao
 interface UserDao {
 

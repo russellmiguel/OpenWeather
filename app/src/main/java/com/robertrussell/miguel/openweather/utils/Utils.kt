@@ -12,7 +12,7 @@ object Utils {
     }
 
     @SuppressLint("SimpleDateFormat")
-    fun convertUnixToDate(unix: Long): Any? {
+    fun convertUnixToDate(unix: Long): String {
 //        val javaTimeStamp = unix * 1000L
 //        return Date(javaTimeStamp)
 

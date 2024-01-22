@@ -91,7 +91,7 @@ fun TabPages(
         if (tabList[page].title == "Current Information") {
             CurrentInfoPage(owViewModel)
         } else {
-            HistoryInfoPage()
+            HistoryInfoPage(owViewModel)
         }
     }
 }

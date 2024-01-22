@@ -89,4 +89,7 @@ dependencies {
 
     // GPS
     implementation("com.google.android.gms:play-services-location:21.0.1")
+
+    // Compose as State
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
 }

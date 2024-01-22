@@ -1,7 +1,6 @@
 package com.robertrussell.miguel.openweather.view
 
-import android.nfc.Tag
-import android.widget.Toast
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,14 +11,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,11 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.robertrussell.miguel.openweather.R
 import com.robertrussell.miguel.openweather.model.SignUpUIEvent
 import com.robertrussell.miguel.openweather.utils.Constants
@@ -43,12 +37,9 @@ import com.robertrussell.miguel.openweather.viewmodel.SignViewModel
 
 @Composable
 fun SignUpPage(viewModel: SignViewModel) {
-
-    val context = LocalContext.current
-
-    var signUpOnClick = {
-        //Toast.makeText(context, "signUpOnClick", Toast.LENGTH_SHORT).show()
-        viewModel.onSignUpEvent(SignUpUIEvent.SignUpButtonClicked)
+    val showDialog = remember { mutableStateOf(false) }
+    var dialogMessage = remember {
+        mutableStateOf("")
     }
 
     Surface(
@@ -56,6 +47,56 @@ fun SignUpPage(viewModel: SignViewModel) {
             .fillMaxHeight(1f)
             .fillMaxWidth(1f)
     ) {
+        var signUpOnClick = {
+            viewModel.onSignUpEvent(SignUpUIEvent.SignUpButtonClicked)
+        }
+
+        if (showDialog.value) {
+            CustomDialog(
+                title = "Sign Up!",
+                setShowDialog = {
+                    showDialog.value = it
+                },
+                type = if (dialogMessage.value == "") {
+                    "sign_up"
+                } else {
+                    "alert"
+                },
+                message = if (dialogMessage.value == "") "Successfully create a new account." else dialogMessage.value
+            )
+        }
+
+        val newUser by viewModel.newUserData.observeAsState()
+        Log.d("TEST-Observer", newUser.toString())
+        Log.d("TEST-Observer", "dialog: " + showDialog.value.toString())
+        Log.d("TEST-Observer", "errorMessage: " + newUser?.errorMessage.isNullOrEmpty().toString())
+
+//        if (!newUser?.errorMessage.isNullOrEmpty() && !showDialog.value) {
+//            dialogMessage = newUser?.errorMessage.toString()
+//            showDialog.value = true
+//        } else {
+//            dialogMessage = ""
+//            showDialog.value = true
+//        }
+
+//        if (newUser?.userName?.isNotEmpty() == true) {
+//            if (newUser?.errorMessage.isNullOrEmpty()) {
+//                dialogMessage.value = ""
+//            } else {
+//                dialogMessage.value = newUser?.errorMessage.toString()
+//            }
+//            showDialog.value = true
+//        }
+
+        if (newUser?.userName?.equals("") == true) {
+            if (newUser?.errorMessage.isNullOrEmpty()) {
+                showDialog.value = true
+                dialogMessage.value = ""
+            }
+            Log.d("TEST-Observer-if", newUser.toString())
+            Log.d("TEST-Observer-if", "showDialog.value ${showDialog.value}")
+        }
+
         Column(
             modifier = with(Modifier) {
                 fillMaxSize()
@@ -97,5 +138,6 @@ fun SignUpPage(viewModel: SignViewModel) {
     BackHandler {
         viewModel.clearSignUpValues()
         Navigation.navigateTo(Pages.SignInScreen)
+        showDialog.value = false
     }
 }

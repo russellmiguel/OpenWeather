@@ -1,31 +1,21 @@
 package com.robertrussell.miguel.openweather.viewmodel
 
-import android.Manifest
-import android.app.Application
-import android.content.pm.PackageManager
 import android.location.Location
 import android.util.Log
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.CancellationToken
-import com.google.android.gms.tasks.CancellationTokenSource
-import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.robertrussell.miguel.openweather.domain.repository.OpenWeatherRepository
 import com.robertrussell.miguel.openweather.model.api.OpenWeatherDataModel
 import com.robertrussell.miguel.openweather.model.api.Response
-import com.robertrussell.miguel.openweather.model.dao.UserDao
-import com.robertrussell.miguel.openweather.utils.Utils
+import com.robertrussell.miguel.openweather.model.dao.WeatherInformationDao
+import com.robertrussell.miguel.openweather.model.entity.WeatherInformation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class OpenWeatherViewModel : ViewModel() {
+class OpenWeatherViewModel(private val weatherDao: WeatherInformationDao) : ViewModel() {
 
     private val TAG = OpenWeatherViewModel::class.simpleName
     private var owRepository = OpenWeatherRepository()
@@ -42,25 +32,43 @@ class OpenWeatherViewModel : ViewModel() {
         appId: String
     ) {
         viewModelScope.launch {
-            Log.d(
-                TAG,
-                "OpenWeatherViewModel|getCurrentWeatherInformation :: _location.lan: ${_location.latitude}"
-            )
-            Log.d(
-                TAG,
-                "OpenWeatherViewModel|getCurrentWeatherInformation :: _location.lon: ${_location.longitude}"
-            )
-
             // repository call
             owRepository.getCurrentWeatherInformation(
                 _location.latitude.toString(),
                 _location.longitude.toString(),
                 appId
-            ).collectLatest {
+            ).collect() {
                 Log.d(TAG, "getCurrentWeatherInformation :: Response: $it")
                 _responseState.value = it
             }
+
+            // Save information to local db
+            val _weatherInfo = responseState.value as Response.Success
+            //val _weatherInfo = responseState.value as Response.Success
+            val weatherInfo = WeatherInformation(
+                coordinatesLongitude = _weatherInfo.data?.coordinates?.lon,
+                coordinatesLatitude = _weatherInfo.data?.coordinates?.lat,
+                weatherId = _weatherInfo.data?.weather?.get(0)?.id,
+                weatherMain = _weatherInfo.data?.weather?.get(0)?.main,
+                weatherDescription = _weatherInfo.data?.weather?.get(0)?.description,
+                mainTemp = _weatherInfo.data?.main?.temp,
+                sysId = _weatherInfo.data?.sys?.id,
+                sysCountry = _weatherInfo.data?.sys?.country,
+                sysSunrise = _weatherInfo.data?.sys?.sunrise,
+                sysSet = _weatherInfo.data?.sys?.sunset,
+                id = _weatherInfo.data?.id,
+                name = _weatherInfo.data?.name,
+                cod = _weatherInfo.data?.cod
+            )
+            weatherDao.insertWeatherInfo(weatherInfo).also {
+                val weather = weatherDao.getAllWeatherInfo()
+                Log.d("TEST-Observer - $TAG", weather.toString())
+            }
         }
+    }
+
+    fun getWeatherHistory(): List<WeatherInformation> {
+        return weatherDao.getAllWeatherInfo()
     }
 
     fun setLocation(location: Location) {

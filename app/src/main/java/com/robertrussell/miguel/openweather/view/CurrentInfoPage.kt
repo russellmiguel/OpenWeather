@@ -103,7 +103,7 @@ fun CurrentInfoPage(openWeatherViewModel: OpenWeatherViewModel) {
                         "scattered clouds" -> R.drawable.scattered_clouds
                         "broken clouds" -> R.drawable.broken_clouds
                         "shower rain" -> R.drawable.shower_rain
-                        "rain" -> {
+                        "rain", "moderate rain" -> {
                             if (isDayTime)
                                 R.drawable.rain_morning
                             else
@@ -180,9 +180,8 @@ fun CurrentInfoPage(openWeatherViewModel: OpenWeatherViewModel) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             responseValue.data?.sys?.sunrise?.let {
-                                Utils.convertUnixToDate(it)
                                 Text(
-                                    text = "Sunrise: $it",
+                                    text = "Sunrise: " + Utils.convertUnixToDate(it),
                                     modifier = Modifier,
                                     style = TextStyle(
                                         color = Color(0xFF302D2D),
@@ -193,9 +192,8 @@ fun CurrentInfoPage(openWeatherViewModel: OpenWeatherViewModel) {
                             }
 
                             responseValue.data?.sys?.sunset?.let {
-                                Utils.convertUnixToDate(it)
                                 Text(
-                                    text = "Sunset: $it",
+                                    text = "Sunset: " + Utils.convertUnixToDate(it),
                                     modifier = Modifier,
                                     style = TextStyle(
                                         color = Color(0xFF302D2D),

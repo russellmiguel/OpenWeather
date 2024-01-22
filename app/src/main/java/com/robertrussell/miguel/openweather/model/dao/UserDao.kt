@@ -9,7 +9,7 @@ import com.robertrussell.miguel.openweather.model.entity.User
 @Dao
 interface UserDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertUser(user: User): Long
 
     @Query("SELECT * FROM users")

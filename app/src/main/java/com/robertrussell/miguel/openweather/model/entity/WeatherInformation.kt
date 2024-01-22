@@ -20,4 +20,3 @@ data class WeatherInformation(
     val name: String?,
     val cod: String?
 )
-

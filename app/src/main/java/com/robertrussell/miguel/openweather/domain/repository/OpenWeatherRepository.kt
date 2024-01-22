@@ -3,7 +3,6 @@ package com.robertrussell.miguel.openweather.domain.repository
 import com.robertrussell.miguel.openweather.model.api.OpenWeatherDataModel
 import com.robertrussell.miguel.openweather.model.api.Response
 import com.robertrussell.miguel.openweather.service.OWServiceBuilder
-import com.robertrussell.miguel.openweather.utils.Constants
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

@@ -4,7 +4,6 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.robertrussell.miguel.openweather.domain.AppDataBase
 import com.robertrussell.miguel.openweather.model.dao.WeatherInformationDao
-import com.robertrussell.miguel.openweather.model.entity.User
 import com.robertrussell.miguel.openweather.model.entity.WeatherInformation
 import kotlinx.coroutines.runBlocking
 import org.junit.After

@@ -13,13 +13,11 @@ import com.robertrussell.miguel.openweather.viewmodel.OpenWeatherViewModel
 typealias composableScreen = @Composable () -> Unit
 
 sealed class TabPages(
-    //val owViewModel: OpenWeatherViewModel,
     val title: String,
     val icons: ImageVector
 ) {
     data object CurrentInfo :
         TabPages(
-
             title = "Current Information",
             icons = Icons.Default.Home
         )

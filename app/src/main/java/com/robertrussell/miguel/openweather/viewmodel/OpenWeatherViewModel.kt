@@ -1,7 +1,6 @@
 package com.robertrussell.miguel.openweather.viewmodel
 
 import android.location.Location
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.robertrussell.miguel.openweather.domain.repository.OpenWeatherRepository
@@ -31,19 +30,22 @@ class OpenWeatherViewModel(private val weatherDao: WeatherInformationDao) : View
         appId: String
     ) {
         viewModelScope.launch {
-            // repository call
+
+            /**
+             * Repository call.
+             */
             owRepository.getCurrentWeatherInformation(
                 _location.latitude.toString(),
                 _location.longitude.toString(),
                 appId
             ).collectLatest {
-                Log.d(TAG, "getCurrentWeatherInformation :: Response: $it")
                 _responseState.value = it
             }
 
-            // Save information to local db
+            /**
+             * Save information to local db.
+             */
             val _weatherInfo = responseState.value as Response.Success
-            //val _weatherInfo = responseState.value as Response.Success
             val weatherInfo = WeatherInformation(
                 coordinatesLongitude = _weatherInfo.data?.coordinates?.lon,
                 coordinatesLatitude = _weatherInfo.data?.coordinates?.lat,
@@ -61,7 +63,6 @@ class OpenWeatherViewModel(private val weatherDao: WeatherInformationDao) : View
             )
             weatherDao.insertWeatherInfo(weatherInfo).also {
                 val weather = weatherDao.getAllWeatherInfo()
-                Log.d("TEST-Observer - $TAG", weather.toString())
             }
         }
     }

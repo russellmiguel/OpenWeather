@@ -1,6 +1,5 @@
 package com.robertrussell.miguel.openweather.view
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -15,11 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,20 +26,49 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.robertrussell.miguel.openweather.R
 import com.robertrussell.miguel.openweather.model.SignUpUIEvent
+import com.robertrussell.miguel.openweather.model.api.Response
 import com.robertrussell.miguel.openweather.utils.Constants
 import com.robertrussell.miguel.openweather.view.navigation.Navigation
 import com.robertrussell.miguel.openweather.view.navigation.Pages
 import com.robertrussell.miguel.openweather.viewmodel.SignViewModel
-import io.reactivex.Observer
-
 
 @Composable
 fun SignUpPage(viewModel: SignViewModel) {
 
     val context = LocalContext.current
-    val showDialog = remember { mutableStateOf(false) }
-    var dialogMessage = remember {
-        mutableStateOf("")
+
+    val result = viewModel.resultSignUp.collectAsState()
+    when (result.value) {
+        is Response.Loading -> {
+            LoadingAnimation(
+                modifier = Modifier
+                    .padding(30.dp),
+                circleSize = 25.dp
+            )
+        }
+
+        is Response.Success -> {
+            val _result = result.value as Response.Success
+            if (_result.data != null) {
+                Toast.makeText(
+                    context,
+                    "Account has been successfully created.",
+                    Toast.LENGTH_LONG
+                ).show()
+                Navigation.navigateTo(Pages.SignInScreen)
+            }
+            viewModel.clearSignUpValues()
+        }
+
+        is Response.Failure -> {
+            val _result = result.value as Response.Failure
+            Toast.makeText(
+                context,
+                _result.e?.message,
+                Toast.LENGTH_LONG
+            ).show()
+
+        }
     }
 
     Surface(
@@ -55,44 +79,6 @@ fun SignUpPage(viewModel: SignViewModel) {
         var signUpOnClick = {
             viewModel.onSignUpEvent(SignUpUIEvent.SignUpButtonClicked)
         }
-
-        if (showDialog.value) {
-            CustomDialog(
-                title = "Sign Up!",
-                setShowDialog = {
-                    showDialog.value = it
-                },
-                type = if (dialogMessage.value == "") {
-                    "sign_up"
-                } else {
-                    "alert"
-                },
-                message = if (dialogMessage.value == "") "Successfully create a new account." else dialogMessage.value
-            )
-        }
-
-        val status = viewModel.status.observeAsState()
-        if (status.value == true) {
-            Toast.makeText(context, "Account successfully created.", Toast.LENGTH_LONG).show()
-            Navigation.navigateTo(Pages.SignInScreen)
-        }
-//        } else {
-//            Toast.makeText(context, "Failed to create account, check credentials.", Toast.LENGTH_LONG).show()
-//        }
-
-//        val newUser by viewModel.newUserData.observeAsState()
-//        Log.d("TEST-Observer", newUser.toString())
-//        Log.d("TEST-Observer", "dialog: " + showDialog.value.toString())
-//        Log.d("TEST-Observer", "errorMessage: " + newUser?.errorMessage.isNullOrEmpty().toString())
-//
-//        if (newUser?.userName?.equals("") == true) {
-//            if (newUser?.errorMessage.isNullOrEmpty()) {
-//                showDialog.value = true
-//                dialogMessage.value = ""
-//            } else {
-//                Log.d("TEST-Observer", "ELSE: ${newUser?.errorMessage}")
-//            }
-//        }
 
         Column(
             modifier = with(Modifier) {
@@ -135,6 +121,5 @@ fun SignUpPage(viewModel: SignViewModel) {
     BackHandler {
         viewModel.clearSignUpValues()
         Navigation.navigateTo(Pages.SignInScreen)
-        showDialog.value = false
     }
 }

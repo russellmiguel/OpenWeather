@@ -1,6 +1,5 @@
 package com.robertrussell.miguel.openweather.view
 
-import android.location.Location
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column

@@ -13,16 +13,9 @@ object Utils {
 
     @SuppressLint("SimpleDateFormat")
     fun convertUnixToDate(unix: Long): String {
-//        val javaTimeStamp = unix * 1000L
-//        return Date(javaTimeStamp)
-
         // TODO: For testing, formatted value display wrong date
         val sdf = SimpleDateFormat("KK:mm:ss aaa")
         val date = Date(unix * 1000)
         return sdf.format(date)
-    }
-
-    fun isDayTime(current: Date) {
-
     }
 }

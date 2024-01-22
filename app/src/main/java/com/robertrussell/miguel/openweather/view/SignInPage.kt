@@ -28,10 +28,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.robertrussell.miguel.openweather.R
 import com.robertrussell.miguel.openweather.model.SignInUIEvents
 import com.robertrussell.miguel.openweather.model.api.Response
@@ -39,7 +37,6 @@ import com.robertrussell.miguel.openweather.utils.Constants
 import com.robertrussell.miguel.openweather.view.navigation.Navigation
 import com.robertrussell.miguel.openweather.view.navigation.Pages
 import com.robertrussell.miguel.openweather.viewmodel.SignViewModel
-
 
 @Composable
 fun SignInPage(viewModel: SignViewModel) {

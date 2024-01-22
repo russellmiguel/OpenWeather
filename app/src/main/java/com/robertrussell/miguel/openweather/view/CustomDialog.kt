@@ -92,6 +92,11 @@ fun CustomDialog(
                                 .height(30.dp)
                                 .clickable {
                                     setShowDialog(false)
+                                    if (type == "alert") {
+                                        Log.d("TEST-Observer-type", "onDismissed: $type")
+                                    } else {
+                                        Log.d("TEST-Observer-type", "onDismissed: $type")
+                                    }
                                 }
                         )
                     }

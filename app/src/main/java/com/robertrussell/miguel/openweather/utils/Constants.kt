@@ -6,7 +6,6 @@ object Constants {
      * APP ID for Open weather API
      */
     const val APPID = "12aa83daf9dd5483fcc567739a456299"
-    //const val APPID = "dc503712110d5619e0e9fe35060dc319"
 
     /**
      * Form types for sign in/up

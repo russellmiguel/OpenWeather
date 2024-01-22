@@ -11,7 +11,6 @@ import com.robertrussell.miguel.openweather.model.dao.WeatherInformationDao
 import com.robertrussell.miguel.openweather.model.entity.WeatherInformation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -37,7 +36,7 @@ class OpenWeatherViewModel(private val weatherDao: WeatherInformationDao) : View
                 _location.latitude.toString(),
                 _location.longitude.toString(),
                 appId
-            ).collect() {
+            ).collectLatest {
                 Log.d(TAG, "getCurrentWeatherInformation :: Response: $it")
                 _responseState.value = it
             }

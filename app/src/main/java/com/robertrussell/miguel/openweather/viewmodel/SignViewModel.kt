@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.robertrussell.miguel.openweather.model.SignInUIEvents
 import com.robertrussell.miguel.openweather.model.SignInValues
+import com.robertrussell.miguel.openweather.model.SignResultDataClass
 import com.robertrussell.miguel.openweather.model.SignUpUIEvent
 import com.robertrussell.miguel.openweather.model.SignUpValues
 import com.robertrussell.miguel.openweather.model.api.Response
@@ -23,7 +24,7 @@ import java.lang.StringBuilder
 
 class SignViewModel(private val userDao: UserDao) : ViewModel() {
 
-    private val TAG = SignViewModel::class.simpleName
+    private val TAG = SignViewModel::class.simpleName + "-Test"
 
     private var signInUIValue = SignInValues()
     private var loginInProgress = mutableStateOf(false)
@@ -33,11 +34,13 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
     private var signUpInProgress = mutableStateOf(false)
     private var signUpErrorMessage = StringBuilder()
 
+    var status = MutableLiveData<Boolean?>()
+
     /**
      * Observable sign up values.
      */
-    private var _newUserData = MutableLiveData<SignUpValues>(SignUpValues(""))
-    var newUserData: LiveData<SignUpValues> = _newUserData
+    //private var _newUserData = MutableLiveData<SignUpValues>(SignUpValues(""))
+    //var newUserData: LiveData<SignUpValues> = _newUserData
 
     /**
      * Add user to local db.
@@ -110,10 +113,14 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
             }
 
             is SignUpUIEvent.SignUpButtonClicked -> {
+                Log.d(TAG, "SignUpUIEvent.SignUpButtonClicked!")
                 signUpInProgress.value = true
+
+                // validate credentials
                 val valResult = validateSignUpDetails()
                 Log.d(TAG, valResult.toString())
 
+                // get credentials to save on local db
                 val newUser = User(
                     name = signUpUIValue.name,
                     email = signUpUIValue.email,
@@ -122,6 +129,9 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
                 )
 
                 if (valResult) {
+                    status.value = true
+
+                    // Insert new user
                     insertUser(newUser).also {
                         Thread.sleep(1000L)
                         val newAddedUser = getUser(signUpUIValue.userName, signUpUIValue.password)
@@ -131,15 +141,16 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
                             userName = newAddedUser.username,
                             password = newAddedUser.password,
                         )
-                        _newUserData.postValue(_newUser)
+                        //_newUserData.postValue(_newUser)
 
+                        // Check new user
                         Log.d(TAG, newAddedUser.toString())
                         clearSignUpValues()
                     }
                 } else {
+                    status.value = false
                     signUpUIValue.errorMessage = signUpErrorMessage.toString()
-                    _newUserData.value = signUpUIValue
-                    Log.d("TEST-Observer - $TAG", signUpErrorMessage.toString())
+                    //_newUserData.value = signUpUIValue
                 }
             }
         }

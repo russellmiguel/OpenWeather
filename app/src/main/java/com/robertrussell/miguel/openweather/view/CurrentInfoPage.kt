@@ -14,6 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
@@ -45,15 +49,18 @@ import java.util.Locale
 fun CurrentInfoPage(openWeatherViewModel: OpenWeatherViewModel) {
 
     val context = LocalContext.current
-    openWeatherViewModel.getCurrentWeatherInformation(
-        Constants.APPID
-    )
 
     Surface(
         modifier = Modifier
             .fillMaxHeight(1f)
             .fillMaxWidth(1f)
     ) {
+        LaunchedEffect(Unit) {
+            openWeatherViewModel.getCurrentWeatherInformation(
+                Constants.APPID
+            )
+        }
+
         Column(
             modifier = with(Modifier) {
                 fillMaxSize()
@@ -92,28 +99,26 @@ fun CurrentInfoPage(openWeatherViewModel: OpenWeatherViewModel) {
                     val current = LocalDateTime.now().format(formatter)
                     val isDayTime = current.toInt() in 6..17
 
-                    val weatherImage = when (weatherDescription) {
-                        "few clouds" -> {
-                            if (isDayTime)
-                                R.drawable.few_clound_morning
-                            else
-                                R.drawable.few_cloud_night
-                        }
-
-                        "scattered clouds" -> R.drawable.scattered_clouds
-                        "broken clouds" -> R.drawable.broken_clouds
-                        "shower rain" -> R.drawable.shower_rain
-                        "rain", "moderate rain" -> {
+                    val weatherImage = when (weather) {
+                        "Thunderstorm" -> R.drawable.thunderstorm
+                        "Drizzle" -> R.drawable.shower_rain
+                        "Rain" -> {
                             if (isDayTime)
                                 R.drawable.rain_morning
                             else
                                 R.drawable.rain_night
                         }
 
-                        "thunderstorm" -> R.drawable.thunderstorm
-                        "snow" -> R.drawable.snow
-                        "mist" -> R.drawable.mist
-                        "clear sky" -> {
+                        "Snow" -> R.drawable.snow
+                        "Mist", "Smoke", "Haze", "Dust", "Fog", "Sand", "Ash", "Squall", "Tornado" -> R.drawable.mist
+                        "Clear" -> {
+                            if (isDayTime)
+                                R.drawable.clear_sky_morning
+                            else
+                                R.drawable.clear_sky_night
+                        }
+
+                        "Clouds" -> {
                             if (isDayTime)
                                 R.drawable.clear_sky_morning
                             else

@@ -1,6 +1,7 @@
 package com.robertrussell.miguel.openweather.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,7 +31,7 @@ fun OWListItem(info: WeatherInformation) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(5.dp)
+            .padding(3.dp)
             .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
@@ -46,28 +47,26 @@ fun OWListItem(info: WeatherInformation) {
             val current = LocalDateTime.now().format(formatter)
             val isDayTime = current.toInt() in 6..17
 
-            val weatherImage = when (info.weatherDescription) {
-                "few clouds" -> {
-                    if (isDayTime)
-                        R.drawable.few_clound_morning
-                    else
-                        R.drawable.few_cloud_night
-                }
-
-                "scattered clouds" -> R.drawable.scattered_clouds
-                "broken clouds" -> R.drawable.broken_clouds
-                "shower rain" -> R.drawable.shower_rain
-                "rain", "moderate rain" -> {
+            val weatherImage = when (info.weatherMain) {
+                "Thunderstorm" -> R.drawable.thunderstorm
+                "Drizzle" -> R.drawable.shower_rain
+                "Rain" -> {
                     if (isDayTime)
                         R.drawable.rain_morning
                     else
                         R.drawable.rain_night
                 }
 
-                "thunderstorm" -> R.drawable.thunderstorm
-                "snow" -> R.drawable.snow
-                "mist" -> R.drawable.mist
-                "clear sky" -> {
+                "Snow" -> R.drawable.snow
+                "Mist", "Smoke", "Haze", "Dust", "Fog", "Sand", "Ash", "Squall", "Tornado" -> R.drawable.mist
+                "Clear" -> {
+                    if (isDayTime)
+                        R.drawable.clear_sky_morning
+                    else
+                        R.drawable.clear_sky_night
+                }
+
+                "Clouds" -> {
                     if (isDayTime)
                         R.drawable.clear_sky_morning
                     else
@@ -93,7 +92,7 @@ fun OWListItem(info: WeatherInformation) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "${info.name}, ${info.sysCountry}",
+                    text = "${info.sysCountry}, ${info.name}",
                     modifier = Modifier,
                     style = TextStyle(
                         color = Color(0xFF302D2D),

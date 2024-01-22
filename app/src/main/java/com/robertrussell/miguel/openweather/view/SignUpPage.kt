@@ -1,6 +1,7 @@
 package com.robertrussell.miguel.openweather.view
 
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -33,10 +35,13 @@ import com.robertrussell.miguel.openweather.utils.Constants
 import com.robertrussell.miguel.openweather.view.navigation.Navigation
 import com.robertrussell.miguel.openweather.view.navigation.Pages
 import com.robertrussell.miguel.openweather.viewmodel.SignViewModel
+import io.reactivex.Observer
 
 
 @Composable
 fun SignUpPage(viewModel: SignViewModel) {
+
+    val context = LocalContext.current
     val showDialog = remember { mutableStateOf(false) }
     var dialogMessage = remember {
         mutableStateOf("")
@@ -66,36 +71,28 @@ fun SignUpPage(viewModel: SignViewModel) {
             )
         }
 
-        val newUser by viewModel.newUserData.observeAsState()
-        Log.d("TEST-Observer", newUser.toString())
-        Log.d("TEST-Observer", "dialog: " + showDialog.value.toString())
-        Log.d("TEST-Observer", "errorMessage: " + newUser?.errorMessage.isNullOrEmpty().toString())
-
-//        if (!newUser?.errorMessage.isNullOrEmpty() && !showDialog.value) {
-//            dialogMessage = newUser?.errorMessage.toString()
-//            showDialog.value = true
+        val status = viewModel.status.observeAsState()
+        if (status.value == true) {
+            Toast.makeText(context, "Account successfully created.", Toast.LENGTH_LONG).show()
+            Navigation.navigateTo(Pages.SignInScreen)
+        }
 //        } else {
-//            dialogMessage = ""
-//            showDialog.value = true
+//            Toast.makeText(context, "Failed to create account, check credentials.", Toast.LENGTH_LONG).show()
 //        }
 
-//        if (newUser?.userName?.isNotEmpty() == true) {
+//        val newUser by viewModel.newUserData.observeAsState()
+//        Log.d("TEST-Observer", newUser.toString())
+//        Log.d("TEST-Observer", "dialog: " + showDialog.value.toString())
+//        Log.d("TEST-Observer", "errorMessage: " + newUser?.errorMessage.isNullOrEmpty().toString())
+//
+//        if (newUser?.userName?.equals("") == true) {
 //            if (newUser?.errorMessage.isNullOrEmpty()) {
+//                showDialog.value = true
 //                dialogMessage.value = ""
 //            } else {
-//                dialogMessage.value = newUser?.errorMessage.toString()
+//                Log.d("TEST-Observer", "ELSE: ${newUser?.errorMessage}")
 //            }
-//            showDialog.value = true
 //        }
-
-        if (newUser?.userName?.equals("") == true) {
-            if (newUser?.errorMessage.isNullOrEmpty()) {
-                showDialog.value = true
-                dialogMessage.value = ""
-            }
-            Log.d("TEST-Observer-if", newUser.toString())
-            Log.d("TEST-Observer-if", "showDialog.value ${showDialog.value}")
-        }
 
         Column(
             modifier = with(Modifier) {

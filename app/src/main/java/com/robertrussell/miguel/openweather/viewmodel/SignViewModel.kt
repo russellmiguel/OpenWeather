@@ -12,13 +12,19 @@ import com.robertrussell.miguel.openweather.model.SignInValues
 import com.robertrussell.miguel.openweather.model.SignResultDataClass
 import com.robertrussell.miguel.openweather.model.SignUpUIEvent
 import com.robertrussell.miguel.openweather.model.SignUpValues
+import com.robertrussell.miguel.openweather.model.api.OpenWeatherDataModel
 import com.robertrussell.miguel.openweather.model.api.Response
 import com.robertrussell.miguel.openweather.model.dao.UserDao
 import com.robertrussell.miguel.openweather.model.entity.User
 import com.robertrussell.miguel.openweather.utils.DataChecker
 import com.robertrussell.miguel.openweather.view.navigation.Navigation
 import com.robertrussell.miguel.openweather.view.navigation.Pages
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.lang.StringBuilder
 
@@ -27,7 +33,6 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
     private val TAG = SignViewModel::class.simpleName + "-Test"
 
     private var signInUIValue = SignInValues()
-    private var loginInProgress = mutableStateOf(false)
     private var signInErrorMessage = StringBuilder()
 
     private var signUpUIValue = SignUpValues()
@@ -37,10 +42,10 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
     var status = MutableLiveData<Boolean?>()
 
     /**
-     * Observable sign up values.
+     * Flow sign in values.
      */
-    //private var _newUserData = MutableLiveData<SignUpValues>(SignUpValues(""))
-    //var newUserData: LiveData<SignUpValues> = _newUserData
+    private val _result = MutableStateFlow<Response<User>>(Response.Success(null))
+    val result: StateFlow<Response<User>> = _result
 
     /**
      * Add user to local db.
@@ -53,9 +58,27 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
 
     /**
      * Get certain user by username and password on local db.
+     * TODO: Moved to repository class.
      */
-    private fun getUser(username: String, password: String): User {
-        return userDao.getUser(username, password)
+    private fun getUser(username: String, password: String): Flow<Response<User>> = flow {
+        Log.d("SignViewModel", "Sign-trace getUser")
+        delay(1000)
+
+        try {
+            emit(Response.Loading)
+
+            val result = userDao.getUser(username, password)
+            if (result != null) {
+                emit(Response.Success(result))
+            } else {
+                emit(Response.Failure(throw Exception("Invalid credentials")))
+            }
+
+            Log.d("SignViewModel", "Sign-trace getUser Success: $result")
+        } catch (e: Exception) {
+            emit(Response.Failure(e))
+            Log.d("SignViewModel", "Sign-trace getUser Failure: ${e.message}")
+        }
     }
 
     fun onSignInEvent(event: SignInUIEvents) {
@@ -69,26 +92,22 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
             }
 
             is SignInUIEvents.SignInButtonClicked -> {
-                loginInProgress.value = true
 
-                val valResult = validateSignInDetails()
-                if (valResult) {
-                    val user = signInUIValue.userName
-                    val password = signInUIValue.password
+                Log.d("SignViewModel", "Sign-trace SignInUIEvents.SignInButtonClicked")
 
-                    getUser(username = user, password = password).also {
-                        Thread.sleep(1000L)
-                        Log.d(TAG, "SignIn Current User: $it")
-                        if (it != null) {
-                            clearSignInValues()
-                            Navigation.navigateTo(Pages.HomeScreen)
-                        } else {
-                            signInErrorMessage.clear()
-                            signInErrorMessage.append("Invalid username and/or password.")
-                        }
+                /**
+                 * Get credentials.
+                 */
+                val user = signInUIValue.userName
+                val password = signInUIValue.password
+
+                /**
+                 * Check credentials if existing on local db.
+                 */
+                viewModelScope.launch {
+                    getUser(username = user, password = password).collectLatest {
+                        _result.value = it
                     }
-                } else {
-                    signInErrorMessage.append("Username and/or Password is empty.")
                 }
             }
         }
@@ -132,25 +151,10 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
                     status.value = true
 
                     // Insert new user
-                    insertUser(newUser).also {
-                        Thread.sleep(1000L)
-                        val newAddedUser = getUser(signUpUIValue.userName, signUpUIValue.password)
-                        val _newUser = SignUpValues(
-                            name = newAddedUser.name,
-                            email = newAddedUser.email,
-                            userName = newAddedUser.username,
-                            password = newAddedUser.password,
-                        )
-                        //_newUserData.postValue(_newUser)
-
-                        // Check new user
-                        Log.d(TAG, newAddedUser.toString())
-                        clearSignUpValues()
-                    }
+                    insertUser(newUser)
                 } else {
                     status.value = false
                     signUpUIValue.errorMessage = signUpErrorMessage.toString()
-                    //_newUserData.value = signUpUIValue
                 }
             }
         }
@@ -192,14 +196,6 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
         return (!signUpUIValue.nameError && !signUpUIValue.emailError && !signUpUIValue.userNameError && !signUpUIValue.passwordError)
     }
 
-    private fun validateSignInDetails(): Boolean {
-        if (!signInErrorMessage.isNullOrEmpty()) {
-            signInErrorMessage.clear()
-        }
-
-        return !(signInUIValue.userName.isEmpty() && signInUIValue.password.isEmpty())
-    }
-
     fun clearSignUpValues() {
         signUpErrorMessage.clear()
         signUpUIValue = SignUpValues()
@@ -209,6 +205,6 @@ class SignViewModel(private val userDao: UserDao) : ViewModel() {
     fun clearSignInValues() {
         signInErrorMessage.clear()
         signInUIValue = SignInValues()
-        loginInProgress.value = false
+        _result.value = Response.Success(null)
     }
 }

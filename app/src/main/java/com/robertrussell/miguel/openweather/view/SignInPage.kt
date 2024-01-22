@@ -1,5 +1,6 @@
 package com.robertrussell.miguel.openweather.view
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.robertrussell.miguel.openweather.R
 import com.robertrussell.miguel.openweather.model.SignInUIEvents
+import com.robertrussell.miguel.openweather.model.api.Response
 import com.robertrussell.miguel.openweather.utils.Constants
 import com.robertrussell.miguel.openweather.view.navigation.Navigation
 import com.robertrussell.miguel.openweather.view.navigation.Pages
@@ -42,6 +45,38 @@ import com.robertrussell.miguel.openweather.viewmodel.SignViewModel
 fun SignInPage(viewModel: SignViewModel) {
 
     val context = LocalContext.current
+
+    val result = viewModel.result.collectAsState()
+    when (result.value) {
+        is Response.Loading -> {
+            LoadingAnimation(
+                modifier = Modifier
+                    .padding(30.dp),
+                circleSize = 25.dp
+            )
+        }
+
+        is Response.Success -> {
+            val _result = result.value as Response.Success
+            if (_result.data != null) {
+                Toast.makeText(
+                    context,
+                    "Sign in success",
+                    Toast.LENGTH_LONG
+                ).show()
+                Navigation.navigateTo(Pages.HomeScreen)
+            }
+            viewModel.clearSignInValues()
+        }
+
+        is Response.Failure -> {
+            Toast.makeText(
+                context,
+                "Invalid username and/or password!",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
 
     Surface(
         modifier = Modifier
